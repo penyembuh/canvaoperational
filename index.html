@@ -1093,7 +1093,7 @@
         let currentAIContent = "";
         
         async function callGeminiAPI(promptText, systemInstruction, returnJSON = false) {
-            const GEMINI_API_KEY = ""; // ISI API KEY JIKA INGIN RUN LOCAL MURNI
+            const GEMINI_API_KEY = "AQ.Ab8RN6ISb17F5QCvCfOmE8mitoKx0XQoNxH1I3bOGpaLYsHUMA"; // ISI API KEY JIKA INGIN RUN LOCAL MURNI
             
             if (!GEMINI_API_KEY && !window.location.href.includes("gemini")) {
                 if (returnJSON) return { action: "UNKNOWN", reply_message: "API Key diperlukan untuk testing lokal." };
