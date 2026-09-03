@@ -985,28 +985,37 @@
                 product: appMode
             };
             
-            const existIdx = allMasterAccounts.findIndex(m => m.id === newData.id);
-            if (existIdx > -1) allMasterAccounts[existIdx] = newData;
-            else allMasterAccounts.push(newData);
-            
             closeModal('modal-master'); 
-            renderAll();
+            showLoader();
             
             try {
-                await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'save_master', payload: newData, product: appMode }) });
+                await fetch(SCRIPT_URL, { 
+                    method: 'POST', 
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'text/plain' },
+                    body: JSON.stringify({ action: 'save_master', payload: newData, product: appMode }) 
+                });
+                await fetchDatabase(); // Ambil ulang data dari spreadsheet agar 100% akurat
             } catch (error) {
                 console.error("Gagal sinkronisasi.", error);
+                hideLoader();
             }
         }
 
         function deleteMaster(id) { 
             customConfirm('Yakin ingin menghapus akun ini secara permanen dari Database?', async () => { 
-                allMasterAccounts = allMasterAccounts.filter(m => m.id !== id);
-                renderAll();
+                showLoader();
                 try {
-                    await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'delete_master', id: id, product: appMode }) }); 
+                    await fetch(SCRIPT_URL, { 
+                        method: 'POST', 
+                        mode: 'no-cors',
+                        headers: { 'Content-Type': 'text/plain' },
+                        body: JSON.stringify({ action: 'delete_master', id: id, product: appMode }) 
+                    }); 
+                    await fetchDatabase(); // Ambil ulang data dari spreadsheet agar 100% akurat
                 } catch(e) {
                     console.error("Gagal menghapus.", e);
+                    hideLoader();
                 }
             }); 
         }
@@ -1080,27 +1089,38 @@
                 product: appMode
             };
 
-            const existIdx = allCustomers.findIndex(c => c.id === newData.id);
-            if (existIdx > -1) allCustomers[existIdx] = newData;
-            else allCustomers.push(newData);
-            
             closeModal('modal-customer'); 
-            renderAll();
+            showLoader();
             
             try {
-                await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'save_customer', payload: newData, product: appMode }) });
+                await fetch(SCRIPT_URL, { 
+                    method: 'POST', 
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'text/plain' },
+                    body: JSON.stringify({ action: 'save_customer', payload: newData, product: appMode }) 
+                });
+                await fetchDatabase(); // Ambil ulang data dari spreadsheet agar 100% akurat
             } catch (error) {
                 console.error("Gagal sinkronisasi.", error);
+                hideLoader();
             }
         }
 
         function deleteCustomer(id) { 
             customConfirm('Yakin menghapus member ini dari database?', async () => { 
-                allCustomers = allCustomers.filter(c => c.id !== id);
-                renderAll();
+                showLoader();
                 try {
-                    await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'delete_customer', id: id, product: appMode }) }); 
-                } catch(e) { console.error("Gagal menghapus.", e); }
+                    await fetch(SCRIPT_URL, { 
+                        method: 'POST', 
+                        mode: 'no-cors',
+                        headers: { 'Content-Type': 'text/plain' },
+                        body: JSON.stringify({ action: 'delete_customer', id: id, product: appMode }) 
+                    }); 
+                    await fetchDatabase(); // Ambil ulang data dari spreadsheet agar 100% akurat
+                } catch(e) { 
+                    console.error("Gagal menghapus.", e); 
+                    hideLoader();
+                }
             }); 
         }
 
