@@ -3,22 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard Multiguna</title>
+    <title>Multiproduct Admin Dashboard</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <style>
+        /* CSS Variables untuk Dynamic Theming (Canva = Ungu, Netflix = Merah) */
         :root {
-            /* Tema Canva (Default) */
             --color-brand-50: #f5f3ff; --color-brand-100: #ede9fe;
             --color-brand-500: #8b5cf6; --color-brand-600: #7c3aed;
             --color-brand-700: #6d28d9; --color-brand-800: #5b21b6; --color-brand-900: #4c1d95;
             --header-gradient-1: #4c1d95; --header-gradient-2: #7c3aed;
         }
         
-        /* Tema Netflix */
         body.theme-netflix {
             --color-brand-50: #fef2f2; --color-brand-100: #fee2e2;
             --color-brand-500: #ef4444; --color-brand-600: #e50914; 
@@ -238,11 +237,11 @@
                 </div>
                 
                 <!-- Smart Duration Fields (3 Kolom Dropdown Tanpa Shortcut) -->
-                <div class="bg-brand-50/50 p-5 rounded-2xl border border-brand-100 shadow-sm">
+                <div class="bg-slate-50/50 p-5 rounded-2xl border border-slate-200 shadow-sm">
                     <!-- Area Tgl Mulai -->
                     <div class="mb-5">
                         <label class="block text-sm font-bold text-slate-700 mb-3 flex items-center gap-2">
-                            <span class="w-6 h-6 rounded-full bg-brand-200 text-brand-700 flex items-center justify-center text-xs">1</span> 
+                            <span class="w-6 h-6 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center text-xs">1</span> 
                             Tanggal Mulai (Start)
                         </label>
                         <div class="grid grid-cols-3 gap-3">
@@ -253,7 +252,7 @@
                     </div>
 
                     <!-- Area Tgl Berakhir -->
-                    <div class="pt-4 border-t border-brand-200/60">
+                    <div class="pt-4 border-t border-slate-200">
                         <label class="block text-sm font-bold text-slate-700 mb-3 flex items-center gap-2">
                             <span class="w-6 h-6 rounded-full bg-rose-200 text-rose-700 flex items-center justify-center text-xs">2</span> 
                             Tanggal Berakhir (Expiry)
@@ -299,11 +298,11 @@
                 </div>
                 
                 <!-- Smart Duration Fields (3 Kolom Dropdown Tanpa Shortcut) -->
-                <div class="bg-brand-50/50 p-5 rounded-2xl border border-brand-100 shadow-sm">
+                <div class="bg-slate-50/50 p-5 rounded-2xl border border-slate-200 shadow-sm">
                     <!-- Area Tgl Bergabung -->
                     <div class="mb-5">
                         <label class="block text-sm font-bold text-slate-700 mb-3 flex items-center gap-2">
-                            <span class="w-6 h-6 rounded-full bg-brand-200 text-brand-700 flex items-center justify-center text-xs">1</span> 
+                            <span class="w-6 h-6 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center text-xs">1</span> 
                             Tanggal Bergabung (Start)
                         </label>
                         <div class="grid grid-cols-3 gap-3">
@@ -314,7 +313,7 @@
                     </div>
 
                     <!-- Area Tgl Berakhir -->
-                    <div class="pt-4 border-t border-brand-200/60">
+                    <div class="pt-4 border-t border-slate-200">
                         <label class="block text-sm font-bold text-slate-700 mb-3 flex items-center gap-2">
                             <span class="w-6 h-6 rounded-full bg-rose-200 text-rose-700 flex items-center justify-center text-xs">2</span> 
                             Tanggal Berakhir (Expiry)
@@ -345,8 +344,12 @@
                     <div>
                         <label class="block text-sm font-bold text-slate-700 mb-2">Pilih Kotak Profil</label>
                         <select id="customer-profile-no" class="w-full px-5 py-3.5 bg-white border border-slate-200 rounded-xl outline-none font-bold text-slate-700">
-                            <option value="1">Profil 2</option><option value="2">Profil 3</option><option value="3">Profil 4</option><option value="4">Profil 5</option>
+                            <option value="2">Profil 2</option>
+                            <option value="3">Profil 3</option>
+                            <option value="4">Profil 4</option>
+                            <option value="5">Profil 5</option>
                         </select>
+                        <p class="text-[10px] text-slate-500 mt-1">*Profil 1 dikhususkan untuk Admin</p>
                     </div>
                     <div>
                         <label class="block text-sm font-bold text-slate-700 mb-2">PIN Netflix</label>
@@ -416,6 +419,26 @@
         let myChart = null;
         let appMode = 'canva'; // State awal
 
+        // --- FALLBACK DATA UNTUK PREVIEW LOKAL ---
+        function loadFallbackData() {
+            const today = new Date();
+            const nextMonth = new Date(); nextMonth.setDate(today.getDate() + 30);
+            const nextWeek = new Date(); nextWeek.setDate(today.getDate() + 5);
+            
+            const formatStr = (d) => `${d.getFullYear()}-${(d.getMonth()+1).toString().padStart(2,'0')}-${d.getDate().toString().padStart(2,'0')}`;
+
+            allMasterAccounts = [
+                { id: "M1", team_name: "Tim Alpha (Demo)", email: "alpha@canva.com", password: "pass", start_date: formatStr(today), expiry_date: formatStr(nextMonth), total_slots: 500, product: "canva" },
+                { id: "M2", team_name: "Tim Beta (Warning)", email: "beta@canva.com", password: "pass", start_date: formatStr(today), expiry_date: formatStr(nextWeek), total_slots: 500, product: "canva" },
+                { id: "M3", team_name: "Netflix Head 1", email: "head1@netflix.com", password: "pass", start_date: formatStr(today), expiry_date: formatStr(nextMonth), total_slots: 4, product: "netflix" }
+            ];
+            allCustomers = [
+                { id: "C1", name: "Budi Santoso", email: "budi@gmail.com", join_date: formatStr(today), expiry_date: formatStr(nextMonth), status: "Aktif", master_account_id: "M1", product: "canva" },
+                { id: "C2", name: "Siti Aminah", email: "siti@gmail.com", join_date: formatStr(today), expiry_date: formatStr(nextMonth), status: "Aktif", master_account_id: "M3", profile_no: "2", pin: "1234", product: "netflix" }
+            ];
+            renderAll();
+        }
+
         function getMasters() { return allMasterAccounts.filter(m => m.product === appMode); }
         function getCustomers() { return allCustomers.filter(c => c.product === appMode); }
 
@@ -458,7 +481,7 @@
         }
 
         // ==============================================================================
-        // LOGIKA DATE DROPDOWN (HARI, BULAN, TAHUN)
+        // LOGIKA DATE DROPDOWN (HARI, BULAN, TAHUN) DENGAN VALIDASI SMART CALENDAR
         // ==============================================================================
         const monthsStr = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
         
@@ -475,6 +498,7 @@
 
             let maxDays = 31;
             if (month === 2) {
+                // Logika Tahun Kabisat
                 maxDays = (year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0)) ? 29 : 28;
             } else if ([4, 6, 9, 11].includes(month)) {
                 maxDays = 30;
@@ -488,6 +512,7 @@
                 daySelect.appendChild(option);
             }
 
+            // Pertahankan hari yang dipilih jika masih valid, jika tidak kembalikan ke 1
             if (currentDay <= maxDays && currentDay > 0) {
                 daySelect.value = currentDay.toString().padStart(2, '0');
             } else {
@@ -543,7 +568,7 @@
             if(dayEl && monthEl && yearEl) {
                 monthEl.value = (dateObj.getMonth() + 1).toString().padStart(2, '0');
                 yearEl.value = dateObj.getFullYear().toString();
-                updateDays(prefix); 
+                updateDays(prefix); // Update hari maksimal sebelum menetapkan hari
                 dayEl.value = dateObj.getDate().toString().padStart(2, '0');
             }
         }
@@ -594,14 +619,12 @@
             
             if (mode === 'netflix') {
                 body.classList.add('theme-netflix');
-                // Canva menjadi transparan
                 btnCanva.className = 'px-6 py-3 rounded-lg text-sm font-bold text-white hover:bg-white/10 transition-all flex items-center gap-2 opacity-70 hover:opacity-100';
-                // Kotak putih pindah ke Netflix
                 btnNetflix.className = 'px-6 py-3 rounded-lg text-sm font-bold bg-white text-brand-900 shadow-md transition-all flex items-center gap-2';
                 
                 document.getElementById('app-title').innerText = 'Panel Admin Netflix';
                 document.getElementById('app-icon').innerText = 'N';
-                document.getElementById('app-desc').innerText = 'Kelola jaringan Akun Headmaster Anda beserta 4 Profil layar mandiri untuk disewakan ke setiap pengguna.';
+                document.getElementById('app-desc').innerText = 'Kelola jaringan Akun Headmaster Anda beserta 4 Profil layar mandiri (Profil 2-5) untuk disewakan ke setiap pengguna.';
                 document.getElementById('tab-master-label').innerHTML = '👑 Headmasters';
                 document.getElementById('kpi-label-master').innerText = 'Headmaster Aktif';
                 
@@ -611,9 +634,7 @@
                 document.getElementById('customer-col-1').innerText = 'Customer & Profil';
             } else {
                 body.classList.remove('theme-netflix');
-                // Kotak putih pindah ke Canva
                 btnCanva.className = 'px-6 py-3 rounded-lg text-sm font-bold bg-white text-brand-900 shadow-md transition-all flex items-center gap-2';
-                // Netflix menjadi transparan
                 btnNetflix.className = 'px-6 py-3 rounded-lg text-sm font-bold text-white hover:bg-white/10 transition-all flex items-center gap-2 opacity-70 hover:opacity-100';
                 
                 document.getElementById('app-title').innerText = 'Panel Admin Canva';
@@ -646,11 +667,13 @@
                     renderAll();
                 } catch (parseError) {
                     console.error("Respons server bukan JSON (kemungkinan HTML):", text.substring(0, 100) + "...");
-                    customAlert("Gagal terhubung! Pastikan SCRIPT_URL benar dan hak akses 'Deployment' di Google Apps Script diatur ke 'Anyone' (Siapa saja).");
+                    customAlert("Gagal terhubung! Pastikan SCRIPT_URL benar. Memuat data sampel untuk preview...");
+                    loadFallbackData();
                 }
             } catch (error) {
                 console.error("Koneksi gagal:", error);
-                customAlert("Gagal terhubung dengan jaringan internet atau Spreadsheet.");
+                customAlert("Gagal terhubung ke Google Script (Network/CORS Error). Memuat data sampel (Dummy) untuk preview...");
+                loadFallbackData();
             } finally {
                 hideLoader();
             }
@@ -675,7 +698,7 @@
             const alertContainer = document.getElementById('alert-container');
             
             if(expiringList.length > 0) {
-                alertContainer.innerHTML = `<div class="bg-rose-50 border border-rose-200 p-6 rounded-2xl flex items-start gap-4 shadow-sm">
+                alertContainer.innerHTML = `<div class="bg-rose-50 border border-rose-200 p-6 rounded-2xl flex items-start gap-4 shadow-sm mb-8">
                     <div class="text-rose-500 text-3xl shrink-0">⚠️</div>
                     <div>
                         <h3 class="text-rose-800 font-extrabold text-lg">Peringatan Kadaluarsa!</h3>
@@ -770,7 +793,8 @@
                 const terpakai = getSlotTerpakai(acc.id);
                 let profilesHTML = '';
                 
-                for (let i = 1; i <= 4; i++) {
+                // Netflix Profiles from 2 to 5 (Profile 1 is for Admin)
+                for (let i = 2; i <= 5; i++) {
                     const cust = getCustomers().find(c => c.master_account_id === acc.id && parseInt(c.profile_no || 0) === i);
                     if (cust) {
                         profilesHTML += `
@@ -1036,7 +1060,7 @@
             populateMasterSelect(c.master_account_id);
             
             if(appMode === 'netflix') {
-                document.getElementById('customer-profile-no').value = c.profile_no || '1'; 
+                document.getElementById('customer-profile-no').value = c.profile_no || '2'; 
                 document.getElementById('customer-pin').value = c.pin || '';
             }
         }
@@ -1093,7 +1117,7 @@
         let currentAIContent = "";
         
         async function callGeminiAPI(promptText, systemInstruction, returnJSON = false) {
-            const GEMINI_API_KEY = "AQ.Ab8RN6ISb17F5QCvCfOmE8mitoKx0XQoNxH1I3bOGpaLYsHUMA"; // ISI API KEY JIKA INGIN RUN LOCAL MURNI
+            const GEMINI_API_KEY = ""; // ISI API KEY JIKA INGIN RUN LOCAL MURNI
             
             if (!GEMINI_API_KEY && !window.location.href.includes("gemini")) {
                 if (returnJSON) return { action: "UNKNOWN", reply_message: "API Key diperlukan untuk testing lokal." };
