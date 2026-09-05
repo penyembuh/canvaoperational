@@ -460,7 +460,8 @@
                             class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-brand-300 font-medium text-slate-800 text-sm">
                     </div>
                     <div>
-                        <label class="block text-sm font-bold text-slate-700 mb-2" id="customer-email-label">Email Customer</label>
+                        <label class="block text-sm font-bold text-slate-700 mb-2" id="customer-email-label">Email
+                            Customer</label>
                         <input type="text" id="customer-email" required placeholder="customer@email.com"
                             class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-slate-300 font-medium text-slate-800 text-sm">
                     </div>
@@ -889,20 +890,34 @@
             document.getElementById('kpi-customers').innerText = customers.length;
             document.getElementById('kpi-slots').innerText = totalSlots - customers.length;
 
-            const expiringList = masters.filter(acc => { const sisa = calculateSisaDurasi(acc.expiry_date); return sisa <= 7 && sisa >= 0; });
+            const expiringMasters = masters.filter(acc => { const sisa = calculateSisaDurasi(acc.expiry_date); return sisa <= 7 && sisa >= 0; });
+            const expiringCustomers = customers.filter(c => { const sisa = calculateSisaDurasi(c.expiry_date); return sisa <= 7 && sisa >= 0; });
             const alertContainer = document.getElementById('alert-container');
 
-            if (expiringList.length > 0) {
-                alertContainer.innerHTML = `<div class="bg-rose-50 border border-rose-200 p-6 rounded-2xl flex items-start gap-4 shadow-sm">
+            let alertsHTML = '';
+            if (expiringMasters.length > 0) {
+                alertsHTML += `<div class="bg-rose-50 border border-rose-200 p-6 rounded-2xl flex items-start gap-4 shadow-sm mb-4">
                     <div class="text-rose-500 text-3xl shrink-0">⚠️</div>
                     <div>
-                        <h3 class="text-rose-800 font-extrabold text-lg">Peringatan Kadaluarsa!</h3>
-                        <p class="text-rose-600 text-sm mt-1 mb-3 font-medium">Terdapat ${expiringList.length} akun yang masa aktifnya kurang dari 7 hari.</p>
+                        <h3 class="text-rose-800 font-extrabold text-lg">Peringatan Akun Induk Kadaluarsa!</h3>
+                        <p class="text-rose-600 text-sm mt-1 mb-3 font-medium">Terdapat ${expiringMasters.length} Akun Induk yang masa aktifnya kurang dari 7 hari.</p>
                         <div class="flex flex-wrap gap-2">
-                            ${expiringList.map(acc => `<span class="text-xs font-bold text-rose-700 bg-white px-3 py-1.5 rounded-lg border border-rose-200 shadow-sm">${acc.team_name || acc.email} (Sisa ${calculateSisaDurasi(acc.expiry_date)} Hari)</span>`).join('')}
+                            ${expiringMasters.map(acc => `<span class="text-xs font-bold text-rose-700 bg-white px-3 py-1.5 rounded-lg border border-rose-200 shadow-sm">${acc.team_name || acc.email} (Sisa ${calculateSisaDurasi(acc.expiry_date)} Hari)</span>`).join('')}
                         </div>
                     </div></div>`;
-            } else { alertContainer.innerHTML = ''; }
+            }
+            if (expiringCustomers.length > 0) {
+                alertsHTML += `<div class="bg-amber-50 border border-amber-200 p-6 rounded-2xl flex items-start gap-4 shadow-sm">
+                    <div class="text-amber-500 text-3xl shrink-0">⏳</div>
+                    <div>
+                        <h3 class="text-amber-800 font-extrabold text-lg">Pemberitahuan Durasi Customer Segera Habis!</h3>
+                        <p class="text-amber-700 text-sm mt-1 mb-3 font-medium">Terdapat ${expiringCustomers.length} Customer/Member yang masa aktifnya tersisa kurang dari 7 hari.</p>
+                        <div class="flex flex-wrap gap-2">
+                            ${expiringCustomers.map(c => `<span class="text-xs font-bold text-amber-800 bg-white px-3 py-1.5 rounded-lg border border-amber-200 shadow-sm">👤 ${c.name} ${c.profile_no ? '(Profil ' + c.profile_no + ')' : ''} - Sisa ${calculateSisaDurasi(c.expiry_date)} Hari</span>`).join('')}
+                        </div>
+                    </div></div>`;
+            }
+            alertContainer.innerHTML = alertsHTML;
 
             const ctx = document.getElementById('slotChart').getContext('2d');
             if (myChart) myChart.destroy();
@@ -991,14 +1006,28 @@
                 for (let i = 2; i <= 5; i++) {
                     const cust = getCustomers().find(c => c.master_account_id === acc.id && parseInt(c.profile_no || 0) === i);
                     if (cust) {
+                        const sisaCust = calculateSisaDurasi(cust.expiry_date);
+                        let durasiBadge = sisaCust > 7
+                            ? `<span class="text-[10px] font-extrabold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md flex items-center gap-1 shadow-sm"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>${sisaCust} Hari</span>`
+                            : sisaCust >= 0
+                                ? `<span class="text-[10px] font-extrabold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-md flex items-center gap-1 animate-pulse shadow-sm"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>${sisaCust} Hari</span>`
+                                : `<span class="text-[10px] font-extrabold text-rose-700 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded-md flex items-center gap-1 shadow-sm"><span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>Expired</span>`;
+
                         profilesHTML += `
-                            <div class="bg-white border border-slate-200 rounded-xl p-4 flex justify-between items-center shadow-sm relative overflow-hidden group">
-                                <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-brand-600"></div>
+                            <div class="bg-white border border-slate-200 rounded-xl p-4 flex justify-between items-center shadow-sm relative overflow-hidden group hover:border-brand-300 transition-colors">
+                                <div class="absolute left-0 top-0 bottom-0 w-1.5 ${sisaCust <= 7 && sisaCust >= 0 ? 'bg-amber-500' : sisaCust < 0 ? 'bg-rose-500' : 'bg-brand-600'}"></div>
                                 <div class="flex items-center gap-3.5 pl-3 min-w-0 flex-1">
-                                    <div class="w-11 h-11 rounded-lg bg-brand-50 text-brand-600 font-extrabold text-lg flex items-center justify-center shrink-0">${i}</div>
+                                    <div class="w-11 h-11 rounded-lg bg-brand-50 text-brand-600 font-extrabold text-lg flex items-center justify-center shrink-0 border border-brand-100">${i}</div>
                                     <div class="min-w-0 flex-1">
-                                        <div class="font-extrabold text-sm text-slate-800 truncate" title="${cust.name}">${cust.name || 'Member Profil ' + i}</div>
-                                        <div class="text-[11px] text-slate-500 font-mono mt-0.5 font-bold">PIN: ${cust.pin || '----'}</div>
+                                        <div class="flex items-center gap-2 flex-wrap mb-0.5">
+                                            <div class="font-extrabold text-sm text-slate-800 truncate max-w-[130px]" title="${cust.name}">${cust.name || 'Member Profil ' + i}</div>
+                                            ${durasiBadge}
+                                        </div>
+                                        <div class="flex items-center gap-2 text-[11px] text-slate-500 flex-wrap">
+                                            <span class="font-mono font-bold bg-slate-100 px-1.5 py-0.5 rounded text-slate-700">PIN: ${cust.pin || '----'}</span>
+                                            <span class="text-slate-400">•</span>
+                                            <span class="text-slate-500 font-medium" title="Exp: ${formatDate(cust.expiry_date)}">Exp: ${formatDate(cust.expiry_date)}</span>
+                                        </div>
                                     </div>
                                 </div>
                                 <button onclick="editCustomerModal('${cust.id}')" class="w-8 h-8 rounded-full bg-slate-50 text-slate-400 hover:bg-slate-100 hover:text-brand-600 border border-slate-200 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100 shrink-0 ml-2">✏️</button>
@@ -1097,6 +1126,9 @@
                         <td class="px-8 py-6">
                             <div class="text-xs text-slate-400 font-bold mb-1">Mulai: ${formatDate(c.join_date)}</div>
                             <div class="text-sm font-extrabold text-slate-700">Akhir: ${formatDate(c.expiry_date)}</div>
+                            <div class="text-xs font-bold ${sisaDurasiCustomer <= 7 && sisaDurasiCustomer >= 0 ? 'text-amber-600 font-black animate-pulse' : sisaDurasiCustomer < 0 ? 'text-rose-600' : 'text-emerald-600'} mt-1 flex items-center gap-1">
+                                <span>⏳ Sisa: ${sisaDurasiCustomer >= 0 ? sisaDurasiCustomer + ' Hari' : 'Expired'}</span>
+                            </div>
                         </td>
                         <td class="px-8 py-6">${badge}</td>
                         <td class="px-8 py-6">
@@ -1104,7 +1136,7 @@
                         : `<span class="text-xs font-bold text-slate-400 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200 border-dashed">Belum Di-assign</span>`}
                         </td>
                         <td class="px-8 py-6 text-right opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button onclick="generateAIEmail('${c.id}')" class="px-4 py-2.5 bg-brand-50 hover:bg-brand-100 text-brand-700 border border-brand-200 rounded-xl font-bold text-xs mr-2 transition-colors">✨ Email AI</button>
+                            <button onclick="generateAIEmail('${c.id}')" class="px-4 py-2.5 bg-brand-50 hover:bg-brand-100 text-brand-700 border border-brand-200 rounded-xl font-bold text-xs mr-2 transition-colors">✨ Pesan AI</button>
                             <button onclick="editCustomerModal('${c.id}')" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-xs mr-2 transition-colors">Edit</button>
                             <button onclick="deleteCustomer('${c.id}')" class="px-4 py-2.5 bg-rose-50 text-rose-700 hover:bg-rose-100 rounded-xl font-bold text-xs transition-colors">Hapus</button>
                         </td>
